@@ -1,0 +1,84 @@
+# LCARS dashboard. Works with core cards only; paste into a dashboard's
+# Raw configuration editor, or let scripts/install_lcars.py create it.
+title: LCARS
+views:
+  - title: Bridge
+    path: bridge
+    icon: mdi:star-four-points
+    theme: LCARS Default
+    type: masonry
+    cards:
+      - type: vertical-stack
+        cards:
+          - type: markdown
+            uix:
+              class: header-left
+            content: "# Main Bridge"
+          - type: markdown
+            uix:
+              class: middle-left
+            content: |
+              ## Stardate {{ (now().year - 1900 + now().timetuple().tm_yday / 365) | round(2) }}
+              **{{ states('sensor.time') }}** · {{ now().strftime('%A %d %B %Y') }}
+
+              Sun: {{ states('sun.sun') | replace('_', ' ') | title }}
+          - type: markdown
+            uix:
+              class: footer-left
+            content: "# Systems Nominal"
+
+      - type: vertical-stack
+        cards:
+          - type: markdown
+            uix:
+              class: header-right
+            content: "# Active Lighting"
+          - type: markdown
+            uix:
+              class: middle-right
+            content: >-
+              {% set on = states.light | selectattr('state', 'eq', 'on') | list %}
+              {% if on %}{% for l in on %}- {{ l.name }}
+              {% endfor %}{% else %}All lighting offline.{% endif %}
+          - type: markdown
+            uix:
+              class: footer-right
+            content: "# {{ states.light | selectattr('state','eq','on') | list | count }} Online"
+
+      - type: vertical-stack
+        cards:
+          - type: markdown
+            uix:
+              class: header-left
+            content: "# LCARS Controls"
+          - type: grid
+            columns: 2
+            square: false
+            uix:
+              class: middle-blank
+            cards:
+              - type: button
+                entity: input_boolean.lcars_sound
+                name: Sound
+                uix:
+                  class: button-small
+              - type: button
+                entity: input_boolean.lcars_texture
+                name: Texture
+                uix:
+                  class: button-small
+          - type: entities
+            uix:
+              class: middle-left
+            entities:
+              - input_number.lcars_vertical
+              - input_number.lcars_horizontal
+              - input_number.lcars_menu_font
+          - type: button
+            name: Reload Themes
+            icon: mdi:palette
+            tap_action:
+              action: perform-action
+              perform_action: frontend.reload_themes
+            uix:
+              class: button-large
