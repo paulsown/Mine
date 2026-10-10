@@ -68,3 +68,19 @@ Setup:
 To trigger it from the Apple TV's Control Center: add the *HomeKit Bridge* integration and include
 `script.lcars_show_on_tv` (it appears in Apple Home as a switch), then in the Apple Home app create a
 scene "Bridge" that turns it on. Hold the TV button on the Siri Remote → Home → Bridge, or "Hey Siri, Bridge".
+
+## Sofabaton X1S buttons
+
+`scripts/setup_x1s_webhooks.py` adds `script.apple_tv_control_center` (holds Home on the Apple TV)
+and three local-only webhook automations that run `script.lcars_show_on_tv`,
+`script.lcars_back_to_apple_tv` and `script.apple_tv_control_center`. Run `setup_lg_tv.py` first.
+
+```bash
+HA_URL=http://192.168.1.10:8123 HA_TOKEN=<token> python3 scripts/setup_x1s_webhooks.py --remote remote.apple_tv
+```
+
+It prints a webhook URL per button; in the Sofabaton app add each as an IP/HTTP command (POST).
+Re-runs keep the existing webhook IDs. The URLs work without a token, so keep them out of git.
+
+HA's automation config API refuses to read `automations.yaml` if it contains `!secret`; move those
+automations into a package first.
