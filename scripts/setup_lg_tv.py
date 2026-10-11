@@ -31,7 +31,7 @@ import urllib.request
 
 import websockets
 
-from add_settings_button import card_lists, find_motion_card
+from add_settings_button import card_lists, find_motion_cards
 
 SHOW_ID = "lcars_show_on_tv"
 BACK_ID = "lcars_back_to_apple_tv"
@@ -79,11 +79,12 @@ def save_script(url, token, object_id, config):
 
 def find_anchor(config):
     """Return (parent_list, index) of the Settings button, else the Motion On card."""
-    for cards in card_lists(config):
+    for _, cards in card_lists(config):
         for i, card in enumerate(cards):
             if isinstance(card, dict) and card.get("tap_action", {}).get("navigation_path") == SETTINGS_PATH:
                 return cards, i
-    return find_motion_card(config)
+    _, cards, i = find_motion_cards(config)[0]
+    return cards, i
 
 
 async def main():
