@@ -111,7 +111,10 @@ module rrect(x0, y0, x1, y1, r) {
     translate([x0 + r, y0 + r]) offset(r = r) square([x1 - x0 - 2 * r, y1 - y0 - 2 * r]);
 }
 
-module pill(x0, y0, x1, y1) rrect(x0, y0, x1, y1, (y1 - y0) / 2);
+module pill(x0, y0, x1, y1) {
+    r = (y1 - y0) / 2;
+    hull() for (x = [x0 + r, x1 - r]) translate([x, y0 + r]) circle(r);
+}
 
 // LCARS elbow: vertical bar down the left, sweeping into a bar along the top.
 module elbow2d(x0, y0, x1, ytop, bw, bh, ro, ri) {
