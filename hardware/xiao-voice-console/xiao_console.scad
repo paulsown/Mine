@@ -1,12 +1,12 @@
 // Starfleet desk console for a Seeed XIAO ESP32S3 Sense (Home Assistant voice satellite)
 //
 // Sloped LCARS-style front face, combadge inlay, camera window, mic grille,
-// USB-C opening on the right side and a floor bay for a 1S LiPo pouch cell.
+// and a USB-C power opening on the right side.
 //
 // Parts (set `part` or use -D part="\"body\"" on the command line):
 //   assembly     everything in place, for looking at
 //   body         main shell, already rotated to print on its open back
-//   back         back plate (vents, power switch slot, screw holes)
+//   back         back plate (vents, screw holes)
 //   sled         board holder, glued to the inside of the face
 //   badge_oval   combadge oval inlay (print in gold/yellow)
 //   badge_delta  combadge delta inlay (print in silver/grey)
@@ -37,14 +37,9 @@ cam_d    = 8.6;    // camera hole diameter
 usb_depth = 12.4;  // USB-C centre, measured inward from the camera top
 usb_open  = [13, 7.5]; // opening for the plug overmould (along face, across face)
 
-/* [Battery] */
-bat = [50, 34, 6.5];   // 603450 1000 mAh pouch, plus a little room
-bat_x = -30;           // left edge of the battery
-
 /* [Hardware] */
 screw_pilot = 2.6;     // M3 self-tapping screw into plastic
 screw_clear = 3.4;
-switch_slot = [9.2, 4.0];  // SS12D00-style mini slide switch body
 
 $fn = 64;
 eps = 0.01;
@@ -179,17 +174,11 @@ module corner_blocks() {
     }
 }
 
-module battery_rails() {
-    for (x = [bat_x - 1.2 - 0.4, bat_x + bat[0] + 0.4])
-        translate([x, D - bat[1] - 3, wall - eps]) cube([1.2, bat[1] + 2, 4]);
-}
-
 module body() {
     difference() {
         union() {
             difference() { outer_solid(); inner_void(); }
             corner_blocks();
-            battery_rails();
             // raised LCARS artwork
             intersection() {
                 face_frame() translate([0, 0, -eps]) linear_extrude(0.8 + eps) lcars2d();
@@ -244,11 +233,8 @@ module back_plate() {
         }
         // vent slots
         for (i = [0 : 5]) translate([-18 + i * 7.2 - 1, D - 1, 22]) cube([2, t + 2, 16]);
-        // power switch
-        translate([18 - switch_slot[0] / 2, D - 1, 9 - switch_slot[1] / 2])
-            cube([switch_slot[0], t + 2, switch_slot[1]]);
         // registry, debossed
-        translate([-6, D + t - 0.6, 9]) rotate([0, 0, 180]) rotate([90, 0, 0])
+        translate([0, D + t - 0.6, 9]) rotate([0, 0, 180]) rotate([90, 0, 0])
             linear_extrude(1) text("NCC-1701-D", size = 4.2, font = "Liberation Sans:style=Bold",
                                    halign = "center", valign = "center");
     }
@@ -284,9 +270,6 @@ module board_dummy() {
     color("silver") translate([board_w / 2 - 6.9, -4.5, -usb_depth - 1.6]) cube([7.5, 9, 3.2]);
 }
 
-module battery_dummy() color("royalblue", 0.8)
-    translate([bat_x, D - bat[1] - 1, wall]) cube([50, 34, 6]);
-
 // ---------- output ----------
 
 if (part == "assembly") {
@@ -302,7 +285,6 @@ if (part == "assembly") {
         color("gold") badge_oval();
         color("silver") badge_delta();
     }
-    battery_dummy();
 } else if (part == "body") {
     translate([0, 0, D]) rotate([-90, 0, 0]) body();
 } else if (part == "back") {
